@@ -1,32 +1,39 @@
 const NOTION_API_KEY = 'secret_tiNobiUpYspVLQP24sA9gEFbJuMEWxbc3N68N3KzylY';
 const DATABASE_ID = '509e136d09404128b9af63f7fdc886f4';
 
-const timers = {};
-let steps = [];
-
 async function fetchSteps() {
-    const response = await fetch(`https://api.notion.com/v1/databases/${DATABASE_ID}/query`, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${NOTION_API_KEY}`,
-            'Content-Type': 'application/json',
-            'Notion-Version': '2021-08-16'
+    try {
+        const response = await fetch(`https://api.notion.com/v1/databases/${DATABASE_ID}/query`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${NOTION_API_KEY}`,
+                'Content-Type': 'application/json',
+                'Notion-Version': '2021-08-16'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-    });
 
-    const data = await response.json();
-    steps = data.results.map(page => ({
-        id: page.id,
-        name: page.properties.Schritt.title[0].text.content,
-        order: page.properties.Reihenfolge.number
-    })).sort((a, b) => a.order - b.order);
+        const data = await response.json();
+        const steps = data.results.map(page => ({
+            id: page.id,
+            name: page.properties.Schritt.title[0].text.content,
+            order: page.properties.Reihenfolge.number
+        }));
 
-    createTimers();
+        createTimers(steps);
+    } catch (error) {
+        console.error('Error fetching steps:', error);
+        alert('Fehler beim Abrufen der Schritte aus Notion. Überprüfe die Konsole für Details.');
+    }
 }
 
-function createTimers() {
+function createTimers(steps) {
     const container = document.getElementById('timers');
     container.innerHTML = '';
+
     steps.forEach(step => {
         const timerDiv = document.createElement('div');
         timerDiv.className = 'timer';
@@ -52,61 +59,11 @@ function createTimers() {
 }
 
 function startTimer(stepId) {
-    timers[stepId] = { start: new Date() };
-    alert(`${steps.find(step => step.id === stepId).name} gestartet um ${timers[stepId].start}`);
+    // Implementiere deine Logik zum Starten des Timers hier
 }
 
 function stopTimer(stepId) {
-    if (!timers[stepId] || !timers[stepId].start) {
-        alert(`Bitte starten Sie zuerst den Timer für ${steps.find(step => step.id === stepId).name}.`);
-        return;
-    }
-    timers[stepId].end = new Date();
-    timers[stepId].duration = (timers[stepId].end - timers[stepId].start) / 1000;
-    alert(`${steps.find(step => step.id === stepId).name} gestoppt um ${timers[stepId].end}. Dauer: ${timers[stepId].duration} Sekunden`);
-}
-
-async function saveData() {
-    const data = JSON.stringify(timers, null, 2);
-    console.log('Gespeicherte Daten:', data);
-
-    const response = await fetch('https://api.notion.com/v1/pages', {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${NOTION_API_KEY}`,
-            'Content-Type': 'application/json',
-            'Notion-Version': '2021-08-16'
-        },
-        body: JSON.stringify({
-            parent: { database_id: DATABASE_ID },
-            properties: {
-                'Name': {
-                    title: [
-                        {
-                            text: {
-                                content: 'Morgenroutine ' + new Date().toLocaleDateString()
-                            }
-                        }
-                    ]
-                },
-                'Daten': {
-                    rich_text: [
-                        {
-                            text: {
-                                content: data
-                            }
-                        }
-                    ]
-                }
-            }
-        })
-    });
-
-    if (response.ok) {
-        alert('Daten erfolgreich gespeichert.');
-    } else {
-        alert('Fehler beim Speichern der Daten.');
-    }
+    // Implementiere deine Logik zum Stoppen des Timers hier
 }
 
 fetchSteps();
