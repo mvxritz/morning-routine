@@ -1,5 +1,5 @@
-const NOTION_API_KEY = 'YOUR_NOTION_API_KEY';
-const DATABASE_ID = 'YOUR_DATABASE_ID';
+const NOTION_API_KEY = 'secret_tiNobiUpYspVLQP24sA9gEFbJuMEWxbc3N68N3KzylY';
+const DATABASE_ID = '509e136d09404128b9af63f7fdc886f4';
 
 const timers = {};
 let steps = [];
